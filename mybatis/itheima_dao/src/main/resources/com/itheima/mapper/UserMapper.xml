@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.itheima.mapper.UserMapper">
+    <sql id="selectUser"> select * from user</sql>
+    <!--查询操作-->
+    <select id="findAll" resultType="user">
+        <include refid="selectUser"></include>
+    </select>
+
+    <!--根据id进行查询-->
+    <select id="findById" parameterType="int" resultType="user">
+        select * from user where id=#{id}
+    </select>
+
+    <select id="findByUser" parameterType="user" resultType="user">
+        <include refid="selectUser"></include>
+        <where>
+            <if test="id!=0">
+              and  id=#{id}
+            </if>
+            <if test="username!=null">
+                and  username=#{username}
+            </if>
+            <if test="password!=null">
+                and  password=#{password}
+            </if>
+            <if test="birthday!=null">
+                and  birthday=#{birthday}
+            </if>
+        </where>
+    </select>
+
+
+    <select id="findByIds" parameterType="int[]" resultType="user">
+        <include refid="selectUser"></include>
+        <where>
+            <foreach collection="array" open="id in(" close=")" item="id" separator=",">
+                #{id}
+            </foreach>
+        </where>
+    </select>
+    <resultMap id="resultMap" type="user">
+        <id column="id" property="id"></id>
+        <result column="username" property="username"></result>
+        <result column="password" property="password"></result>
+        <result column="birthday" property="birthday"></result>
+
+        <collection property="orderList" ofType="com.itheima.domain.Order">
+            <!--封装order的数据-->
+            <id column="oid" property="id"></id>
+            <result column="ordertime" property="ordertime"></result>
+            <result column="total" property="total"></result>
+        </collection>
+
+    </resultMap>
+
+    <select id="findUsers"  resultMap="resultMap">
+         SELECT *,o.id oid FROM USER u LEFT JOIN orders o ON u.id=o.uid
+    </select>
+
+
+
+
+</mapper>
